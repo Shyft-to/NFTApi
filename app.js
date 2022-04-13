@@ -8,6 +8,7 @@ const ipfsAPI = require('ipfs-api');
 
 const app = express();
 const port = 3000;
+const uploadDir = "uploads";
 
 app.use(bp.json())
 app.use(bp.urlencoded({ extended: true }))
@@ -39,33 +40,23 @@ app.post("/createNft", (req, res) => {
     var uploadDetails;
     if (req.files) {
         try {
-            uploadDetails = uploadDataToIpfs(req.files, createFileOnIpfs, createMetadataOnIpfs);
+            uploadDetails = uploadDataToIpfs(req.files, req.body, res, createFileOnIpfs, createMetadataOnIpfs);
         } catch (err) {
             console.log(err);
             res.status(500).send(err);
         }
     }
-
-
-    // nftHandler.createNFT(req)
-    //     .then((response) => res.send(response))
-    //     .catch(error => {
-    //         console.error(error);
-    //         res.send('creation failed with error ' + error);
-    //     })
-
 })
 
 app.listen(port, () => {
     console.log(`Server running on port: ${port}`);
 });
 
-function uploadDataToIpfs(fileData, createFileOnIpfs, createMetadataOnIpfs) {
+function uploadDataToIpfs(fileData, reqParams, response, createFileOnIpfs, createMetadataOnIpfs) {
     console.log("file details:");
     console.log(fileData);
 
     var uploadedFileName = uuidv4();
-    var uploadDir = "uploads";
 
     file = fileData.file;
     fileLocation = uploadDir + "/" + uploadedFileName;
@@ -75,12 +66,12 @@ function uploadDataToIpfs(fileData, createFileOnIpfs, createMetadataOnIpfs) {
             throw new Error(err);
         }
 
-        createFileOnIpfs(fileLocation, createMetadataOnIpfs)
+        createFileOnIpfs(fileLocation, reqParams, response, createMetadataOnIpfs)
     })
 }
 
-// upload the data on ipfs
-function createFileOnIpfs(fileLocation, createMetadataOnIpfs) {
+//upload the data on ipfs
+function createFileOnIpfs(fileLocation, reqParams, response, createMetadataOnIpfs) {
     let diskFile = fs.readFileSync(fileLocation);
     console.log("uploading file to ipfs");
     let ipfsBuffer = new Buffer(diskFile);
@@ -91,10 +82,46 @@ function createFileOnIpfs(fileLocation, createMetadataOnIpfs) {
             throw new Error(err)
         }
         console.log(file[0]);
-        createMetadataOnIpfs(file[0]);
+        metadata = createMetadata(reqParams, file[0]);
+        metaDataFilePath = createMetadataJsonFile(metadata);
+        createMetadataOnIpfs(metadata, metaDataFilePath, response);
     });
 }
 
-function createMetadataOnIpfs(uploadedImageDetails) {
+function createMetadataJsonFile(metadata) {
+    jsonFileName = uploadDir + "/" + uuidv4() + ".json";
+    console.log(metadata);
+    console.log(JSON.stringify(metadata));
+    jsonFile = fs.writeFileSync(jsonFileName, JSON.stringify(metadata));
+    return jsonFileName;
+}
 
+function createMetadata(reqParams, file) {
+    let metadata = {
+        name: reqParams.name,
+        description: reqParams.description,
+        image: "https://ipfs.io/ipfs/" + file.hash
+    }
+    return metadata;
+}
+
+function createMetadataOnIpfs(metadata, metaDataFilePath, response) {
+    let metaFile = fs.readFileSync(metaDataFilePath);
+    console.log("uploading metadata file to ipfs");
+    let ipfsBuffer = new Buffer(metaFile);
+    ipfs.files.add(ipfsBuffer, function (err, file) {
+        if (err) {
+            console.log(err);
+            throw new Error(err)
+        }
+        console.log(file[0]);
+    })
+
+    response.send('data uploaded to ipfs')
+    // nftHandler.createNFT(req)
+    //     .then((response) => res.send(response))
+    //     .catch(error => {
+    //         console.error(error);
+    //         res.send('creation failed with error ' + error);
+    //     })
 }
