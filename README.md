@@ -22,16 +22,25 @@ Now, you nodeJs server is running at port 3000.
 ```
 curl --location --request POST 'localhost:3000/createNft' \
 --header 'Content-Type: application/json' \
---data-raw '{
-    "mintTo": "0xb8FAAB1f7f19E7021A8736777d7D0d75b7bdFcbc",
-    "tokenUri" : "vg.com"
-}'
+--form 'file=@"/Users/vg/Documents/nft images/1.jpeg"' \
+--form 'mintTo="0xb8FAAB1f7f19E7021A8736777d7D0d75b7bdFcbc"' \
+--form 'name="cool dude"' \
+--form 'description="a cool new nft token"'
 ```
 if you wish then you can update the `mintoTo` and `tokenUri` values.
 
 2. curl to query the owner of a token Id
 ```
 curl --location --request POST 'localhost:3000/ownerOf' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "tokenId" : 1
+}'
+```
+
+3. curl to get the URI of the token
+```
+curl --location --request POST 'localhost:3000/tokenURI' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "tokenId" : 1
