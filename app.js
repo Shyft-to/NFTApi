@@ -35,6 +35,22 @@ app.post('/ownerOf', (req, res) => {
 
 })
 
+
+app.post('/tokenURI', (req, res) => {
+    console.log(req.body);
+    nftHandler.getTokenURI(req)
+        .then((uri) => {
+            res.send({
+                tokenId: req.body.tokenId,
+                tokenURI: uri,
+            })
+        })
+        .catch(error => {
+            res.send('failed to fetch the owner' + error);
+        })
+
+})
+
 app.post("/createNft", (req, res) => {
     console.log(req.body);
     var uploadDetails;
@@ -84,14 +100,13 @@ function createFileOnIpfs(fileLocation, reqParams, response, createMetadataOnIpf
         console.log(file[0]);
         metadata = createMetadata(reqParams, file[0]);
         metaDataFilePath = createMetadataJsonFile(metadata);
-        createMetadataOnIpfs(metadata, metaDataFilePath, response);
+        createMetadataOnIpfs(metadata, reqParams.mintTo, metaDataFilePath, response);
     });
 }
 
 function createMetadataJsonFile(metadata) {
     jsonFileName = uploadDir + "/" + uuidv4() + ".json";
-    console.log(metadata);
-    console.log(JSON.stringify(metadata));
+    console.log("metadata generated: \n" + metadata);
     jsonFile = fs.writeFileSync(jsonFileName, JSON.stringify(metadata));
     return jsonFileName;
 }
@@ -105,7 +120,7 @@ function createMetadata(reqParams, file) {
     return metadata;
 }
 
-function createMetadataOnIpfs(metadata, metaDataFilePath, response) {
+function createMetadataOnIpfs(metadata, mintTo, metaDataFilePath, response) {
     let metaFile = fs.readFileSync(metaDataFilePath);
     console.log("uploading metadata file to ipfs");
     let ipfsBuffer = new Buffer(metaFile);
@@ -115,13 +130,21 @@ function createMetadataOnIpfs(metadata, metaDataFilePath, response) {
             throw new Error(err)
         }
         console.log(file[0]);
-    })
 
-    response.send('data uploaded to ipfs')
-    // nftHandler.createNFT(req)
-    //     .then((response) => res.send(response))
-    //     .catch(error => {
-    //         console.error(error);
-    //         res.send('creation failed with error ' + error);
-    //     })
+        let data = {
+            mintTo: mintTo,
+            tokenUri: "ipfs://" + file[0].hash
+        }
+
+        nftHandler.createNFT(data)
+            .then((ret) => {
+                ret.name = metadata.name;
+                ret.description = metadata.description;
+                response.send(ret);
+            })
+            .catch(error => {
+                console.error(error);
+                res.status(500).send('creation failed with error ' + error);
+            })
+    })
 }
