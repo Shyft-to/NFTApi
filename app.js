@@ -12,10 +12,25 @@ app.get('/', (req, res) => {
     res.send('Hello World!')
 })
 
+app.post('/ownerOf', (req, res) => {
+    console.log(req.body);
+    nftHandler.getNftOwner(req)
+        .then((owner) => {
+            res.send({
+                tokenId: req.body.tokenId,
+                owner: owner,
+            })
+        })
+        .catch(error => {
+            res.send('failed to fetch the owner' + error);
+        })
+
+})
+
 app.post("/createNft", (req, res) => {
     console.log(req.body);
-    nftHandler.createNFT(res)
-        .then(() => res.send('NFT created'))
+    nftHandler.createNFT(req)
+        .then((response) => res.send(response))
         .catch(error => {
             console.error(error);
             res.send('creation failed with error ' + error);

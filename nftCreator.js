@@ -1,16 +1,34 @@
 const hre = require("hardhat");
 
+let localContractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+
 async function createNFT(request) {
-    let localContractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-    let mintTo = "0xb8FAAB1f7f19E7021A8736777d7D0d75b7bdFcbc";
     const HelloNft = await hre.ethers.getContractFactory("HelloNft");
     const hello = await HelloNft.attach(localContractAddress);
 
-    tokenId = await hello.awardItem(mintTo, request.tokenUri);
-    console.log("token minted: ");
-    console.log("tokenId: " + tokenId);
-    ownerAddress = await hello.ownerOf(tokenId);
-    console.log("token owner: " + ownerAddress);
+    const txn = await hello.awardItem(request.body.mintTo, request.body.tokenUri);
+    console.log("token minted");
+    console.log("txn: ", JSON.stringify(txn));
+
+    let response = {
+        transaction_hash: txn.hash,
+        mint_to_address: txn.to,
+        contract_address: localContractAddress,
+    }
+
+    return response
 }
 
-module.exports.createNFT = createNFT;
+async function getNftOwner(request) {
+    const HelloNft = await hre.ethers.getContractFactory("HelloNft");
+    const hello = await HelloNft.attach(localContractAddress);
+
+    const ownerAddress = await hello.ownerOf(request.body.tokenId);
+    console.log(ownerAddress.toString());
+    return ownerAddress.toString();
+}
+
+module.exports = {
+    createNFT,
+    getNftOwner
+};
