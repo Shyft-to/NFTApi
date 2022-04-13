@@ -1,5 +1,5 @@
 # NftCreator
-This is the repo to create NFTs
+This is the repo to create NFTs on EVM compatible blockchains (able to run solidity code).
 
 # how to run 
 1. clone the code in your system.
