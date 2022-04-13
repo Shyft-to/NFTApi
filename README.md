@@ -8,12 +8,12 @@ This is the repo to create NFTs on EVM compatible blockchains (able to run solid
 4. In another terminal window compile the smart contract, `npx hardhat compile`
 5. deploy the smart contract on local blockchain, `npx hardhat run --network localhost scripts/deploy.js`
 
-By now following things are happening in your syste:
+By now following things are happening in your system:
 1. a local blockchain is running
 2. smart contracts under the directory contracts/solidity have been deployed on this blockchain
 
-continuing with running...
-6. start your nodeJs server by running `npx hardhat run --network localhost app.js`
+Next:
+start your nodeJs server by running `npx hardhat run --network localhost app.js`
 
 Now, you nodeJs server is running at port 3000.
 
