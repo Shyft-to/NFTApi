@@ -1,12 +1,14 @@
 const express = require('express');
 const bp = require('body-parser')
-nftHandler = require('./nftCreator');
+const nftHandler = require('./nftCreator');
+const fileUpload = require('express-fileupload');
 
 const app = express();
 const port = 3000;
 
 app.use(bp.json())
 app.use(bp.urlencoded({ extended: true }))
+app.use(fileUpload());
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
@@ -29,12 +31,26 @@ app.post('/ownerOf', (req, res) => {
 
 app.post("/createNft", (req, res) => {
     console.log(req.body);
-    nftHandler.createNFT(req)
-        .then((response) => res.send(response))
-        .catch(error => {
-            console.error(error);
-            res.send('creation failed with error ' + error);
+    let file;
+    if (req.files) {
+        console.log("files attached with the request")
+        file = req.files.file;
+        file.mv('uploads/' + file.name, function (err) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            }
         })
+        res.send('file uplaoded');
+
+    }
+
+    // nftHandler.createNFT(req)
+    //     .then((response) => res.send(response))
+    //     .catch(error => {
+    //         console.error(error);
+    //         res.send('creation failed with error ' + error);
+    //     })
 
 })
 
