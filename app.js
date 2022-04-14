@@ -7,17 +7,26 @@ const { v4: uuidv4 } = require('uuid');
 const ipfsAPI = require('ipfs-api');
 const sgMail = require('@sendgrid/mail');
 const secrets = require('./secrets.json');
+const redis = require('redis');
+let client = require('@sendgrid/client');
+const { error } = require('pull-stream/sources');
 
 const app = express();
 const port = 3000;
 const uploadDir = "uploads";
 sgMail.setApiKey(secrets.sendridApiKey);
+let dbClient;
 
 app.use(bp.json())
 app.use(bp.urlencoded({ extended: true }))
 app.use(fileUpload());
+connectToRedis();
 
 const ipfs = ipfsAPI('ipfs.infura.io', '5001', { protocol: 'https' })
+
+// dbClient.on('connect', () => {
+//     console.log('redis conneted');
+// })
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
@@ -29,25 +38,38 @@ app.post('/signup', (req, res) => {
         return
     }
 
-    apiKey = uuidv4().toString();
-    html = '<strong>Welcome to Shyft. Begin your NFT journey. Your API Key is : ' + apiKey + '</strong>';
-    const msg = {
-        to: req.body.emailId,
-        from: 'vgvishesh2022@gmail.com',
-        subject: 'Shyft API key',
-        text: uuidv4().toString(),
-        html: html,
-    }
+    getApiKey(req.body.emailId)
+        .then((key) => {
+            registerApiKeyInDb(key, req.body.emailId);
+            return key;
+        })
+        .then((key) => {
+            html = '<strong>Welcome to Shyft. Begin your NFT journey. Your API Key is : ' + key + '</strong>';
+            const msg = {
+                to: req.body.emailId,
+                from: 'vgvishesh2022@gmail.com',
+                subject: 'Shyft API key',
+                text: uuidv4().toString(),
+                html: html,
+            }
 
-    sgMail.send(msg)
-        .then(() => {
-            console.log('Email sent to ' + req.body.emailId);
+            sgMail.send(msg)
+                .then(() => {
+                    console.log('Email sent to ' + req.body.emailId);
+                })
+                .catch((error) => {
+                    throw error;
+                })
+
+            return key;
+        })
+        .then((key) => {
             res.send("API key has been sent to your emailId");
         })
-        .catch((error) => {
-            console.log(error);
-            res.status(500).send("failed to generate the API key");
-        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send(error)
+        });
 })
 
 app.post('/ownerOf', (req, res) => {
@@ -200,4 +222,22 @@ function isEmailIdValid(email) {
         return false;
 
     return true;
+}
+
+async function getApiKey(emailId) {
+    let apiKey = await dbClient.get(emailId);
+    if (apiKey == null) {
+        apiKey = uuidv4().toString();
+    }
+    console.log(apiKey);
+    return apiKey
+}
+
+async function connectToRedis() {
+    dbClient = redis.createClient();
+    await dbClient.connect();
+}
+
+async function registerApiKeyInDb(apiKey, emailId) {
+    await dbClient.set(emailId, apiKey);
 }
