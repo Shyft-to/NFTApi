@@ -24,10 +24,6 @@ connectToRedis();
 
 const ipfs = ipfsAPI('ipfs.infura.io', '5001', { protocol: 'https' })
 
-// dbClient.on('connect', () => {
-//     console.log('redis conneted');
-// })
-
 app.get('/', (req, res) => {
     res.send('Hello World!')
 })
