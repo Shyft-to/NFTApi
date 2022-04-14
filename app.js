@@ -5,10 +5,13 @@ const fileUpload = require('express-fileupload');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const ipfsAPI = require('ipfs-api');
+const sgMail = require('@sendgrid/mail');
+const secrets = require('./secrets.json');
 
 const app = express();
 const port = 3000;
 const uploadDir = "uploads";
+sgMail.setApiKey(secrets.sendridApiKey);
 
 app.use(bp.json())
 app.use(bp.urlencoded({ extended: true }))
@@ -18,6 +21,28 @@ const ipfs = ipfsAPI('ipfs.infura.io', '5001', { protocol: 'https' })
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
+})
+
+app.post('/signup', (req, res) => {
+    apiKey = uuidv4().toString();
+    html = '<strong>Welcome to Shyft. Begin your NFT journey. Your API Key is : ' + apiKey + '</strong>';
+    const msg = {
+        to: req.body.emailId,
+        from: 'vgvishesh2022@gmail.com',
+        subject: 'Shyft API key',
+        text: uuidv4().toString(),
+        html: html,
+    }
+
+    sgMail.send(msg)
+        .then(() => {
+            console.log('Email sent to ' + req.body.emailId);
+            res.send("API key has been sent to your emailId");
+        })
+        .catch((error) => {
+            console.log(error);
+            res.status(500).send("failed to generate the API key");
+        })
 })
 
 app.post('/ownerOf', (req, res) => {
@@ -32,7 +57,6 @@ app.post('/ownerOf', (req, res) => {
         .catch(error => {
             res.send('failed to fetch the owner' + error);
         })
-
 })
 
 
