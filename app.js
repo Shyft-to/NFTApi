@@ -24,6 +24,11 @@ app.get('/', (req, res) => {
 })
 
 app.post('/signup', (req, res) => {
+    if (!isEmailIdValid(req.body.emailId)) {
+        res.status(400).send("invalid email address");
+        return
+    }
+
     apiKey = uuidv4().toString();
     html = '<strong>Welcome to Shyft. Begin your NFT journey. Your API Key is : ' + apiKey + '</strong>';
     const msg = {
@@ -171,4 +176,28 @@ function createMetadataOnIpfs(metadata, mintTo, metaDataFilePath, response) {
                 res.status(500).send('creation failed with error ' + error);
             })
     })
+}
+
+function isEmailIdValid(email) {
+    var emailRegex = /^[-!#$%&'*+\/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/;
+    if (!email)
+        return false;
+
+    if (email.length > 254)
+        return false;
+
+    var valid = emailRegex.test(email);
+    if (!valid)
+        return false;
+
+    // Further checking of some things regex can't handle
+    var parts = email.split("@");
+    if (parts[0].length > 64)
+        return false;
+
+    var domainParts = parts[1].split(".");
+    if (domainParts.some(function (part) { return part.length > 63; }))
+        return false;
+
+    return true;
 }
