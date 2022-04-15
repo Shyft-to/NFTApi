@@ -8,7 +8,8 @@ const ipfsAPI = require('ipfs-api');
 const sgMail = require('@sendgrid/mail');
 const secrets = require('./secrets.json');
 const redis = require('redis');
-let client = require('@sendgrid/client');
+const dotenv = require('dotenv');
+dotenv.config();
 const { error } = require('pull-stream/sources');
 
 const app = express();
@@ -24,6 +25,12 @@ connectToRedis();
 
 const ipfs = ipfsAPI('ipfs.infura.io', '5001', { protocol: 'https' })
 
+const retType = {
+    notFound: "notFound",
+    limitExceeded: "api key limit exceeded",
+    validApi: "Valid Api Key"
+}
+
 app.get('/', (req, res) => {
     res.send('Hello World!')
 })
@@ -37,6 +44,10 @@ app.post('/signup', (req, res) => {
     getApiKey(req.body.emailId)
         .then((key) => {
             registerApiKeyInDb(key, req.body.emailId);
+            return key;
+        })
+        .then((key) => {
+            initiateAPIkeyLimit(key, req.body.emailId);
             return key;
         })
         .then((key) => {
@@ -82,7 +93,6 @@ app.post('/ownerOf', (req, res) => {
         })
 })
 
-
 app.post('/tokenURI', (req, res) => {
     console.log(req.body);
     nftHandler.getTokenURI(req)
@@ -100,15 +110,36 @@ app.post('/tokenURI', (req, res) => {
 
 app.post("/createNft", (req, res) => {
     console.log(req.body);
-    var uploadDetails;
-    if (req.files) {
-        try {
-            uploadDetails = uploadDataToIpfs(req.files, req.body, res, createFileOnIpfs, createMetadataOnIpfs);
-        } catch (err) {
-            console.log(err);
-            res.status(500).send(err);
-        }
-    }
+    validateAPIkey(req.body.aurhorizationKey)
+        .then((val) => {
+            if (val == retType.notFound) {
+                throw (val)
+            } else if (val == retType.limitExceeded) {
+                throw (val)
+            }
+        })
+        .then(() => {
+            var uploadDetails;
+            if (req.files) {
+                try {
+                    uploadDetails = uploadDataToIpfs(req.files, req.body, res, createFileOnIpfs, createMetadataOnIpfs);
+                } catch (err) {
+                    throw (err);
+                }
+            }
+        })
+        .catch((err) => {
+            if (err == retType.notFound) {
+                console.log(err);
+                res.status(400).send(err);
+            } else if (err == retType.limitExceeded) {
+                console.log(err);
+                res.status(403).send(err);
+            } else {
+                console.log(err);
+                res.status(500).send(err);
+            }
+        })
 })
 
 app.listen(port, () => {
@@ -236,4 +267,21 @@ async function connectToRedis() {
 
 async function registerApiKeyInDb(apiKey, emailId) {
     await dbClient.set(emailId, apiKey);
+}
+
+async function initiateAPIkeyLimit(key) {
+    await dbClient.set(key, 0);
+}
+
+async function validateAPIkey(key) {
+    let hitCount = await dbClient.get(key);
+    if (hitCount == null) {
+        return retType.notFound;
+    } else if (hitCount > process.env.API_LIMIT) {
+        return retType.limitExceeded;
+    }
+
+    updatedVal = await dbClient.incr(key);
+    console.log("updated Value ", updatedVal);
+    return retType.validApi;
 }
