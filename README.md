@@ -12,7 +12,7 @@ This is the repo to create NFTs on EVM compatible blockchains (able to run solid
     "sendridApiKey": "<sendgeid_api_key>"
 }
 ```
-4. Run the server by connecting ro Rinkeby network by running `npx hardhat run --network rink app.js`
+4. Run the server by connecting ro Rinkeby network by running `npx hardhat run --network rinkeby app.js`
 
 # how to run on local system
 1. clone the code in your system.
