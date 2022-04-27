@@ -4,7 +4,15 @@ This is the repo to create NFTs on EVM compatible blockchains (able to run solid
 # how to run in cloud environment
 1. clone the code in your system.
 2. Install all the dependencies by running : `npm install`
-3. Run the server by connecting ro Rinkeby network by running `npx hardhat run --network rink app.js`
+3. Add a secret.json in the root directory, in below format:
+```
+{
+    "alchemyApiKey": "<alchemy_api_key>",
+    "privateKey": "<wallet_account_private_key>",
+    "sendridApiKey": "<sendgeid_api_key>"
+}
+```
+4. Run the server by connecting ro Rinkeby network by running `npx hardhat run --network rink app.js`
 
 # how to run on local system
 1. clone the code in your system.
