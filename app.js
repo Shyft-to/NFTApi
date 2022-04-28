@@ -6,7 +6,6 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const ipfsAPI = require('ipfs-api');
 const sgMail = require('@sendgrid/mail');
-const secrets = require('./secrets.json');
 const redis = require('redis');
 require('dotenv').config();
 const { error } = require('pull-stream/sources');
@@ -150,6 +149,7 @@ app.post("/createNft", (req, res) => {
 
 app.listen(port, () => {
     console.log(`Server running on port: ${port}`);
+    console.log(`Upload directory: ${process.env.PRIVATE_KEY}`);
 });
 
 function uploadDataToIpfs(fileData, reqParams, response, createFileOnIpfs, createMetadataOnIpfs) {
