@@ -37,7 +37,7 @@ if (!fs.existsSync(dir)) {
 }
 
 app.get('/', (req, res) => {
-    res.send('Hello World!')
+    res.send('Hello Web3!')
 })
 
 app.post('/signup', (req, res) => {
