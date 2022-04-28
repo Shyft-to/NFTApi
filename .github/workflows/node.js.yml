@@ -43,4 +43,4 @@ jobs:
       run: |
         echo Deployed into this PATH $PWD
         npx hardhat compile
-        pm2 start pm2.config.js
+        bash deploy.sh
