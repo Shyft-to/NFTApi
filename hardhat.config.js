@@ -1,6 +1,8 @@
 require("@nomiclabs/hardhat-waffle");
+require('dotenv').config();
 
-const { alchemyApiKey, privateKey } = require('./secrets.json');
+const alchemyApiKey = process.env.ALCHEMY_API_KEY;
+const privateKey = process.env.PRIVATE_KEY;
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -24,7 +26,7 @@ module.exports = {
     hardhat: {},
     rinkeby: {
       url: `https://eth-rinkeby.alchemyapi.io/v2/${alchemyApiKey}`,
-      accounts: [`0x${privateKey}`]
+      accounts: [`0x${privateKey}`],
     },
   },
 };

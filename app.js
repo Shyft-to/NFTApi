@@ -8,14 +8,13 @@ const ipfsAPI = require('ipfs-api');
 const sgMail = require('@sendgrid/mail');
 const secrets = require('./secrets.json');
 const redis = require('redis');
-const dotenv = require('dotenv');
-dotenv.config();
+require('dotenv').config();
 const { error } = require('pull-stream/sources');
 
 const app = express();
 const port = 3000;
 const uploadDir = "uploads";
-sgMail.setApiKey(secrets.sendridApiKey);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 let dbClient;
 
 app.use(bp.json())
@@ -29,6 +28,13 @@ const retType = {
     notFound: "notFound",
     limitExceeded: "api key limit exceeded",
     validApi: "Valid Api Key"
+}
+
+const dir = "./uploads"; // Specified a directory for uploads
+
+/** Create uploads directory if not exist */
+if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
 }
 
 app.get('/', (req, res) => {
