@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require("cors");
 const bp = require('body-parser')
 const nftHandler = require('./nftCreator');
 const fileUpload = require('express-fileupload');
@@ -35,6 +36,16 @@ const dir = "./uploads"; // Specified a directory for uploads
 if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
 }
+
+const corsOptions = {
+    origin: [
+      "http://localhost:4200",
+      "https://localhost:4200",
+      "https://api.shyft.to",
+    ], // Only allowed from these origin
+};
+
+app.use(cors(corsOptions));
 
 app.get('/', (req, res) => {
     res.send('Hello Web3!')
