@@ -126,7 +126,7 @@ app.post('/tokenURI', (req, res) => {
 
 app.post("/createNft", (req, res) => {
     console.log(req.body);
-    validateAPIkey(req.body.aurhorizationKey)
+    validateAPIkey(req.body.authorizationKey)
         .then((val) => {
             if (val == retType.notFound) {
                 throw (val)
@@ -160,7 +160,6 @@ app.post("/createNft", (req, res) => {
 
 app.listen(port, () => {
     console.log(`Server running on port: ${port}`);
-    console.log(`Upload directory: ${process.env.PRIVATE_KEY}`);
 });
 
 function uploadDataToIpfs(fileData, reqParams, response, createFileOnIpfs, createMetadataOnIpfs) {
