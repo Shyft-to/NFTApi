@@ -41,7 +41,8 @@ const corsOptions = {
     origin: [
         "http://localhost:4200",
         "https://localhost:4200",
-        "https://api.shyft.to",
+        "https://shyft.to",
+        "https://www.shyft.to",
     ], // Only allowed from these origin
 };
 
