@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 
 let localContractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-let rinkebyContractAddress = "0xB98D6AdD76bC14559E04Eb55Cc54020F8eA0eDe3";
+let rinkebyContractAddress = "0x48295f586c5A078876438C16200c1F2600010d32";
 let contractAddress = rinkebyContractAddress;
 
 async function createNFT(data) {
@@ -12,10 +12,12 @@ async function createNFT(data) {
     console.log("token minted");
     console.log("txn: ", JSON.stringify(txn));
 
+    tv = await hello.getLatestTokenCount();
     let response = {
         transaction_hash: txn.hash,
         mint_to_address: txn.to,
         contract_address: contractAddress,
+        tokenId: tv.toString(),
     }
 
     return response

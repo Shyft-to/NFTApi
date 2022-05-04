@@ -24,4 +24,8 @@ contract HelloNft is ERC721URIStorage {
 
         return newItemId;
     }
+
+    function getLatestTokenCount() public view returns (uint256) {
+        return _tokenIds.current();
+    }
 }

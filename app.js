@@ -39,9 +39,9 @@ if (!fs.existsSync(dir)) {
 
 const corsOptions = {
     origin: [
-      "http://localhost:4200",
-      "https://localhost:4200",
-      "https://api.shyft.to",
+        "http://localhost:4200",
+        "https://localhost:4200",
+        "https://api.shyft.to",
     ], // Only allowed from these origin
 };
 
@@ -293,7 +293,7 @@ async function validateAPIkey(key) {
     let hitCount = await dbClient.get(key);
     if (hitCount == null) {
         return retType.notFound;
-    } else if (hitCount > process.env.API_LIMIT) {
+    } else if (parseInt(hitCount) > parseInt(process.env.API_LIMIT)) {
         return retType.limitExceeded;
     }
 
