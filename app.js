@@ -245,7 +245,7 @@ function createMetadataOnIpfs(metadata, mintTo, metaDataFilePath, response) {
             })
             .catch(error => {
                 console.error(error);
-                res.status(500).send('creation failed with error ' + error);
+                response.status(500).send('creation failed with error ' + error);
             })
     })
 }
