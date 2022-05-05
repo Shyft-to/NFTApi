@@ -15,6 +15,10 @@ const app = express();
 const port = 3000;
 const uploadDir = "uploads";
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+// SES sendEmail script
+const sendEmail = require("./utils/send-email");
+
 let dbClient;
 
 app.use(bp.json())
@@ -68,23 +72,25 @@ app.post('/signup', (req, res) => {
             return key;
         })
         .then((key) => {
-            html = '<strong>Welcome to Shyft. Begin your NFT journey. Your API Key is : ' + key + '</strong>';
-            const msg = {
-                to: req.body.emailId,
-                from: 'vgvishesh2022@gmail.com',
-                subject: 'Shyft API key',
-                text: uuidv4().toString(),
-                html: html,
-            }
+            // html = '<strong>Welcome to Shyft. Begin your NFT journey. Your API Key is : ' + key + '</strong>';
+            // const msg = {
+            //     to: req.body.emailId,
+            //     from: 'vgvishesh2022@gmail.com',
+            //     subject: 'Shyft API key',
+            //     text: uuidv4().toString(),
+            //     html: html,
+            // }
 
-            sgMail.send(msg)
-                .then(() => {
-                    console.log('Email sent to ' + req.body.emailId);
-                })
-                .catch((error) => {
-                    throw error;
-                })
-
+            // sgMail.send(msg)
+            //     .then(() => {
+            //         console.log('Email sent to ' + req.body.emailId);
+            //     })
+            //     .catch((error) => {
+            //         throw error;
+            //     })
+            const templateName = "ApiKeyTemplate";
+            const templateData = { apiKey: key };
+            sendEmail(req.body.emailId, templateName, templateData);
             return key;
         })
         .then((key) => {
