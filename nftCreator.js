@@ -1,8 +1,8 @@
 const hre = require("hardhat");
 
-let localContractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+let localContractAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
 let rinkebyContractAddress = "0x48295f586c5A078876438C16200c1F2600010d32";
-let contractAddress = rinkebyContractAddress;
+let contractAddress = localContractAddress;
 
 async function createNFT(data) {
     const HelloNft = await hre.ethers.getContractFactory("HelloNft");
@@ -40,8 +40,14 @@ async function getTokenURI(request) {
     return uri;
 }
 
+async function getTokenList(request) {
+    accounts = await hre.ethers.getSigners();
+    console.log(accounts);
+}
+
 module.exports = {
     createNFT,
     getNftOwner,
-    getTokenURI
+    getTokenURI,
+    getTokenList
 };
