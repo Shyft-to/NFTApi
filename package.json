@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/StarboundSpaceShip/NftCreator.git"
+    "url": "git+https://github.com/Shyft-to/NFTApi.git"
   },
   "keywords": [
     "NFT",
@@ -18,12 +18,12 @@
     "tokens",
     "blockchains"
   ],
-  "author": "shift",
+  "author": "shyft",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/StarboundSpaceShip/NftCreator/issues"
+    "url": "https://github.com/Shyft-to/NFTApi/issues"
   },
-  "homepage": "https://github.com/StarboundSpaceShip/NftCreator#readme",
+  "homepage": "https://github.com/Shyft-to/NFTApi#readme",
   "dependencies": {
     "@sendgrid/mail": "^7.6.2",
     "aws-sdk": "^2.1128.0",
