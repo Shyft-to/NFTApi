@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 contract HelloNft is ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
+    mapping(uint256 => address) private _owners;
 
     constructor() ERC721("HelloNft", "ITM") {}
 
@@ -27,5 +28,26 @@ contract HelloNft is ERC721URIStorage {
 
     function getLatestTokenCount() public view returns (uint256) {
         return _tokenIds.current();
+    }
+
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal virtual override {
+        _owners[tokenId] = to;
+    }
+
+    function getTokenList(address player)
+        internal
+        view
+        returns (string[] memory)
+    {
+        string[] memory ownedURIs;
+        for (uint256 j = 0; j <= _tokenIds.current(); j++) {
+            if (_owners[j] == player) {
+                ownedURIs.push(tokenURI(j));
+            }
+        }
     }
 }

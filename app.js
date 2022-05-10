@@ -72,25 +72,25 @@ app.post('/signup', (req, res) => {
             return key;
         })
         .then((key) => {
-            html = '<strong>Welcome to Shyft. Begin your NFT journey. Your API Key is : ' + key + '</strong>';
-            const msg = {
-                to: req.body.emailId,
-                from: 'vgvishesh2022@gmail.com',
-                subject: 'Shyft API key',
-                text: uuidv4().toString(),
-                html: html,
-            }
+            // html = '<strong>Welcome to Shyft. Begin your NFT journey. Your API Key is : ' + key + '</strong>';
+            // const msg = {
+            //     to: req.body.emailId,
+            //     from: 'vgvishesh2022@gmail.com',
+            //     subject: 'Shyft API key',
+            //     text: uuidv4().toString(),
+            //     html: html,
+            // }
 
-            sgMail.send(msg)
-                .then(() => {
-                    console.log('Email sent to ' + req.body.emailId);
-                })
-                .catch((error) => {
-                    throw error;
-                })
-            // const templateName = "ApiKeyTemplate";
-            // const templateData = { apiKey: key };
-            // sendEmail(req.body.emailId, templateName, templateData);
+            // sgMail.send(msg)
+            //     .then(() => {
+            //         console.log('Email sent to ' + req.body.emailId);
+            //     })
+            //     .catch((error) => {
+            //         throw error;
+            //     })
+            const templateName = "ApiKeyTemplate";
+            const templateData = { apiKey: key };
+            sendEmail(req.body.emailId, templateName, templateData);
             return key;
         })
         .then((key) => {
@@ -167,8 +167,13 @@ app.post("/createNft", (req, res) => {
 
 app.get("/listNft/:address", (req, res) => {
     var address = req.params.address;
-    nftHandler.getTokenList(address);
-    res.send("ok");
+    nftHandler.getTokenList(address)
+        .then(res.send("ok"))
+        .catch((err) => {
+            console.log(err)
+            res.send(err)
+        })
+
 })
 
 app.listen(port, () => {
