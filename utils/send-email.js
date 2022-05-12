@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
+require("dotenv").config();
 const Handlebars = require("handlebars");
 
 // Load the AWS SDK for Node.js
