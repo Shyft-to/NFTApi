@@ -12,6 +12,7 @@ require('dotenv').config();
 const { error } = require('pull-stream/sources');
 
 const app = express();
+const router = express.Router();
 const port = 3000;
 const uploadDir = "uploads";
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -52,11 +53,11 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.get('/', (req, res) => {
+router.get('/', (req, res) => {
     res.send('Hello Web3!')
 })
 
-app.post('/signup', (req, res) => {
+router.post('/signup', (req, res) => {
     if (!isEmailIdValid(req.body.emailId)) {
         res.status(400).send("invalid email address");
         return
@@ -102,7 +103,7 @@ app.post('/signup', (req, res) => {
         });
 })
 
-app.post('/ownerOf', (req, res) => {
+router.post('/ownerOf', (req, res) => {
     console.log(req.body);
     nftHandler.getNftOwner(req)
         .then((owner) => {
@@ -116,7 +117,7 @@ app.post('/ownerOf', (req, res) => {
         })
 })
 
-app.post('/tokenURI', (req, res) => {
+router.post('/tokenURI', (req, res) => {
     console.log(req.body);
     nftHandler.getTokenURI(req)
         .then((uri) => {
@@ -131,7 +132,7 @@ app.post('/tokenURI', (req, res) => {
 
 })
 
-app.post("/createNft", (req, res) => {
+router.post("/createNft", (req, res) => {
     console.log(req.body);
     validateAPIkey(req.body.authorizationKey)
         .then((val) => {
@@ -164,6 +165,8 @@ app.post("/createNft", (req, res) => {
             }
         })
 })
+
+app.use('/eth', router); // Run app at `/eth` prefix
 
 app.listen(port, () => {
     console.log(`Server running on port: ${port}`);
